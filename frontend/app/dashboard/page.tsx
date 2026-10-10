@@ -45,7 +45,6 @@ export default function DashboardPage() {
     useEffect(() => {
         async function fetchDashboardData() {
             try {
-                // 1. Récupérer l'utilisateur connecté
                 const userRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user`, {
                     method: "GET",
                     headers: { "Accept": "application/json" },
@@ -53,7 +52,6 @@ export default function DashboardPage() {
                 });
 
                 if (!userRes.ok) {
-                    // Si l'utilisateur n'est pas connecté, retour au login
                     router.push("/login");
                     return;
                 }
