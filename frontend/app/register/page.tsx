@@ -1,8 +1,8 @@
-
 "use client";
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
   ArrowRight,
@@ -19,8 +19,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { getAuthApiUrl, getXsrfToken } from "@/lib/auth-api";
 
 export default function RegisterPage() {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] =
       useState(false);
@@ -30,27 +32,63 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
+    setIsLoading(true);
 
     if (password.length < 8) {
       setError(
           "Votre mot de passe doit contenir au moins 8 caractères."
       );
+      setIsLoading(false);
       return;
     }
 
     if (password !== confirmPassword) {
       setError("Les mots de passe ne correspondent pas.");
+      setIsLoading(false);
       return;
     }
 
-    // TODO: Brancher la création de compte réelle ici.
-    setError(
-        "La création de compte n'est pas encore activée. Revenez bientôt !"
-    );
+    try {
+      const xsrfToken = await getXsrfToken();
+
+      const response = await fetch(getAuthApiUrl("register"), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "X-XSRF-TOKEN": xsrfToken,
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+          password_confirmation: confirmPassword,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (data.errors) {
+          const firstErrorKey = Object.keys(data.errors)[0];
+          throw new Error(data.errors[firstErrorKey][0]);
+        }
+        throw new Error(data.message || "Une erreur est survenue lors de l'inscription.");
+      }
+
+      router.push("/dashboard");
+
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Impossible de s'inscrire au serveur.");
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -63,10 +101,10 @@ export default function RegisterPage() {
             className="absolute left-6 top-6 inline-flex items-center gap-2 text-sm text-[#b9a9c2] transition hover:text-white sm:left-10 sm:top-8"
         >
           <ArrowLeft size={16} />
-          Retour à l'accueil
+          Retour à l&apos;accueil
         </Link>
 
-        <div className="relative z-10 w-full max-w-[440px]">
+        <div className="relative z-10 w-full max-w-110">
           <Link
               href="/"
               className="mb-8 flex items-center justify-center gap-3"
@@ -96,7 +134,7 @@ export default function RegisterPage() {
               <form onSubmit={handleSubmit} className="mt-8 space-y-5">
                 <div className="space-y-2">
                   <Label htmlFor="name" className="text-[#e2d6e7]">
-                    Nom d'utilisateur
+                    Nom d&apos;utilisateur
                   </Label>
                   <div className="relative">
                     <UserRound
@@ -240,15 +278,16 @@ export default function RegisterPage() {
 
                 <Button
                     type="submit"
-                    className="h-12 w-full rounded-xl bg-[#873d58] text-white hover:bg-[#a04b69]"
+                    disabled={isLoading}
+                    className="h-12 w-full rounded-xl bg-[#873d58] text-white hover:bg-[#a04b69] disabled:opacity-50"
                 >
-                  Créer mon compte
+                  {isLoading ? "Création du compte..." : "Créer mon compte"}
                   <ArrowRight className="ml-2 size-4" />
                 </Button>
 
                 <p className="text-center text-xs leading-5 text-[#8e7e97]">
                   En créant un compte, vous acceptez les futures
-                  conditions d'utilisation de Story Haven.
+                  conditions d&apos;utilisation de Story Haven.
                 </p>
               </form>
 

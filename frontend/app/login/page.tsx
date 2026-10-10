@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { getAuthApiUrl, getXsrfToken } from "@/lib/auth-api";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -27,21 +28,55 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
+    setIsLoading(true);
 
     if (!email.trim() || !password) {
       setError("Veuillez remplir tous les champs.");
+      setIsLoading(false);
       return;
     }
 
-    // TODO: Brancher l'authentification réelle ici.
-    setError(
-        "La connexion n'est pas encore activée. Revenez bientôt !"
-    );
+    try {
+      const xsrfToken = await getXsrfToken();
+
+      const response = await fetch(getAuthApiUrl("login"), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "X-XSRF-TOKEN": xsrfToken,
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (data.errors) {
+          const firstErrorKey = Object.keys(data.errors)[0];
+          throw new Error(data.errors[firstErrorKey]);
+        }
+        throw new Error(data.message || "Identifiants incorrects.");
+      }
+
+      router.push("/dashboard");
+
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Impossible de se connecter au serveur.");
+    } finally {
+      setIsLoading(false);
+    }
   }
+
 
   return (
       <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#17111e] px-5 py-12 text-[#f5eff5]">
@@ -53,7 +88,7 @@ export default function LoginPage() {
             className="absolute left-6 top-6 inline-flex items-center gap-2 text-sm text-[#b9a9c2] transition hover:text-white sm:left-10 sm:top-8"
         >
           <ArrowLeft size={16} />
-          Retour à l'accueil
+          Retour à l&apos;accueil
         </Link>
 
         <div className="relative z-10 w-full max-w-[440px]">
@@ -166,9 +201,10 @@ export default function LoginPage() {
 
                 <Button
                     type="submit"
-                    className="h-12 w-full rounded-xl bg-[#873d58] text-white hover:bg-[#a04b69]"
+                    disabled={isLoading}
+                    className="h-12 w-full rounded-xl bg-[#873d58] text-white hover:bg-[#a04b69] disabled:opacity-50"
                 >
-                  Se connecter
+                  {isLoading ? "Connexion en cours..." : "Se connecter"}
                   <ArrowRight className="ml-2 size-4" />
                 </Button>
               </form>
