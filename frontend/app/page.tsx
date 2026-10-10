@@ -44,7 +44,6 @@ const features = [
 ];
 
 export default function Home() {
-  const [currentYear] = useState(new Date().getFullYear());
 
   return (
       <main className="min-h-screen overflow-hidden bg-[#17111e] text-[#f5eff5]">
@@ -378,7 +377,7 @@ export default function Home() {
               story haven
             </Link>
             <p>Un espace pour les mondes que vous imaginez.</p>
-            <p>© {currentYear} Story Haven</p>
+            <p>© 2026 Story Haven</p>
           </div>
         </footer>
       </main>
