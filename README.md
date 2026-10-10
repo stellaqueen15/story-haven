@@ -39,7 +39,7 @@ Follow these steps to run the complete environment locally.
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com
+git clone https://github.com/stellaqueen15/story-haven.git
 cd story-haven
 ```
 
@@ -83,14 +83,3 @@ npm run dev
 ```
 
 The frontend dashboard is now accessible at `http://localhost:3000`.
-
----
-
-## 🎯 Key Features (Roadmap)
-
-- [x] Monorepo architecture setup
-- [x] Initial Frontend views (Landing page, Login, Register)
-- [ ] Authentication bridge (Laravel Sanctum integration)
-- [ ] RP Universes & Communities management (Database schema ready)
-- [ ] Dynamic Character Sheet Builder
-- [ ] Story & Campaign timeline tracking
