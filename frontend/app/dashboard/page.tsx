@@ -12,11 +12,13 @@ import {
     ShieldAlert,
     LogOut,
     Sparkles,
-    ChevronRight
+    ChevronRight,
+    Settings,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { getXsrfToken } from "@/lib/auth-api";
 
 // Types temporaires pour l'affichage
 interface Univers {
@@ -83,9 +85,10 @@ export default function DashboardPage() {
 
     async function handleLogout() {
         try {
+            const xsrfToken = await getXsrfToken();
             await fetch(`${process.env.NEXT_PUBLIC_API_URL}/logout`, {
                 method: "POST",
-                headers: { "Accept": "application/json" },
+                headers: { "Accept": "application/json", "X-XSRF-TOKEN": xsrfToken },
                 credentials: "include"
             });
             router.push("/login");
@@ -120,6 +123,10 @@ export default function DashboardPage() {
                     </Link>
 
                     <div className="flex items-center gap-4">
+                        <Link href="/account" className="inline-flex items-center gap-2 rounded-xl border border-white/[0.06] bg-[#261c2f] px-3 py-2 text-sm text-[#d8c7df] transition hover:border-[#a77ac1]/30 hover:text-white">
+                            <Settings size={15} className="text-[#c59ad9]" />
+                            <span className="hidden sm:inline">Mon compte</span>
+                        </Link>
                         <div className="flex items-center gap-2 rounded-xl bg-[#261c2f] px-3 py-1.5 border border-white/[0.04]">
                             <User size={15} className="text-[#c59ad9]" />
                             <span className="text-sm font-medium">{user?.name}</span>
