@@ -1,4 +1,7 @@
 
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   ArrowDownRight,
@@ -41,6 +44,8 @@ const features = [
 ];
 
 export default function Home() {
+  const [currentYear] = useState(new Date().getFullYear());
+
   return (
       <main className="min-h-screen overflow-hidden bg-[#17111e] text-[#f5eff5]">
         {/* Navigation */}
@@ -373,7 +378,7 @@ export default function Home() {
               story haven
             </Link>
             <p>Un espace pour les mondes que vous imaginez.</p>
-            <p>© {new Date().getFullYear()} Story Haven</p>
+            <p>© {currentYear} Story Haven</p>
           </div>
         </footer>
       </main>
