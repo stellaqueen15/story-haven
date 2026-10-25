@@ -1,47 +1,22 @@
-<laravel-boost-guidelines>
-# Laravel Application
+# StoryHaven backend
 
-This repository contains a Laravel application. Complete the following setup before working on the user's request.
+The backend is a NestJS REST API using Prisma and PostgreSQL. The frontend is a separate Next.js app.
 
-## Prerequisites
+## Local development
 
-Verify that PHP and Composer are available:
+Use Node.js 22 or newer and Docker Desktop. From the repository root, run `docker compose up --build`. The first run installs dependencies, applies Prisma migrations and starts the frontend and API.
 
-```sh
-php -v
-composer -V
-```
+- Web app: http://storyhaven.local (or http://localhost:3000)
+- API: http://storyhaven.local/api
 
-If either command is unavailable, detect the user's operating system and install the prerequisites with the appropriate command:
+To use the `.local` address, add `127.0.0.1 storyhaven.local` to your operating system hosts file. Docker Compose binds the reverse proxy to port 80; if another service already uses that port, stop it or change the `80:80` mapping in `compose.yaml`.
 
-macOS:
+## Backend commands
 
-```sh
-/bin/bash -c "$(curl -fsSL https://php.new/install/mac/8.5)"
-```
+From `backend/`:
 
-Windows PowerShell:
+- `npm run start:dev` starts the API in watch mode.
+- `npx prisma migrate dev --name describe-change` creates and applies a database migration.
+- `npx prisma studio` opens Prisma Studio.
 
-```powershell
-Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://php.new/install/windows/8.5'))
-```
-
-Linux:
-
-```sh
-/bin/bash -c "$(curl -fsSL https://php.new/install/linux/8.5)"
-```
-
-After installation, ask the user to restart their terminal. If the agent needs the restarted shell to continue, ask the user to reopen their terminal and rerun their original prompt.
-
-## Agent Setup
-
-Install Laravel Boost from the application root before making application changes:
-
-```sh
-composer require laravel/boost --dev
-php artisan boost:install
-```
-
-Boost replaces these bootstrap instructions with guidelines tailored to the application. After installation, read `AGENTS.md` again and continue with the user's original request using the generated guidelines.
-</laravel-boost-guidelines>
+Set `DATABASE_URL` in `backend/.env` when running the API outside Docker. In Compose, the API reads the database connection from the `db` service.

@@ -9,16 +9,14 @@ import {
     Compass,
     User,
     Users,
-    ShieldAlert,
     LogOut,
-    Sparkles,
     ChevronRight,
     Settings,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { getXsrfToken } from "@/lib/auth-api";
+import { getApiUrl } from "@/lib/auth-api";
 
 // Types temporaires pour l'affichage
 interface Univers {
@@ -47,7 +45,7 @@ export default function DashboardPage() {
     useEffect(() => {
         async function fetchDashboardData() {
             try {
-                const userRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user`, {
+                const userRes = await fetch(`${getApiUrl("user")}`, {
                     method: "GET",
                     headers: { "Accept": "application/json" },
                     credentials: "include"
@@ -85,10 +83,9 @@ export default function DashboardPage() {
 
     async function handleLogout() {
         try {
-            const xsrfToken = await getXsrfToken();
-            await fetch(`${process.env.NEXT_PUBLIC_API_URL}/logout`, {
+            await fetch(`${getApiUrl("logout")}`, {
                 method: "POST",
-                headers: { "Accept": "application/json", "X-XSRF-TOKEN": xsrfToken },
+                headers: { "Accept": "application/json" },
                 credentials: "include"
             });
             router.push("/login");
@@ -151,7 +148,7 @@ export default function DashboardPage() {
                         <div>
                             <h1 className="font-serif text-3xl sm:text-4xl text-white">Aventurier, bon retour.</h1>
                             <p className="mt-2 text-sm text-[#b5a5bc] max-w-xl">
-                                Prêt à reprendre vos récits ? Rejoignez l'une de vos tables ou concevez un tout nouvel univers de jeu pour vos joueurs.
+                                Prêt à reprendre vos récits ? Rejoignez l&apos;une de vos tables ou concevez un tout nouvel univers de jeu pour vos joueurs.
                             </p>
                         </div>
                     </div>
@@ -256,7 +253,7 @@ export default function DashboardPage() {
                                 </div>
                                 <div>
                                     <h4 className="font-medium text-white">Rejoindre via un code</h4>
-                                    <p className="text-xs text-[#b5a5bc] mt-1 leading-relaxed">Votre Maître du Jeu vous a donné un jeton d'invitation ? Entrez-le pour rejoindre l'aventure.</p>
+                                    <p className="text-xs text-[#b5a5bc] mt-1 leading-relaxed">Votre Maître du Jeu vous a donné un jeton d&apos;invitation ? Entrez-le pour rejoindre l&apos;aventure.</p>
                                 </div>
                                 <div className="flex gap-2">
                                     <input
@@ -277,4 +274,3 @@ export default function DashboardPage() {
         </div>
     );
 }
-

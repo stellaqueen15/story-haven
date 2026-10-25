@@ -1,7 +1,6 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   ArrowDownRight,
@@ -9,7 +8,6 @@ import {
   BookOpen,
   Compass,
   Feather,
-  Menu,
   Moon,
   ScrollText,
   Sparkles,

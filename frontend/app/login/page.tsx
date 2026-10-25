@@ -19,7 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { getAuthApiUrl, getXsrfToken } from "@/lib/auth-api";
+import { getApiUrl } from "@/lib/auth-api";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -42,14 +42,11 @@ export default function LoginPage() {
     }
 
     try {
-      const xsrfToken = await getXsrfToken();
-
-      const response = await fetch(getAuthApiUrl("login"), {
+      const response = await fetch(getApiUrl("login"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Accept": "application/json",
-          "X-XSRF-TOKEN": xsrfToken,
         },
         credentials: "include",
         body: JSON.stringify({
@@ -61,6 +58,9 @@ export default function LoginPage() {
       const data = await response.json();
 
       if (!response.ok) {
+        if (Array.isArray(data.message) && typeof data.message[0] === "string") {
+          throw new Error(data.message[0]);
+        }
         if (data.errors) {
           const firstErrorKey = Object.keys(data.errors)[0];
           throw new Error(data.errors[firstErrorKey]);

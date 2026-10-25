@@ -9,31 +9,49 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { getXsrfToken } from "@/lib/auth-api";
+import { getApiUrl } from "@/lib/auth-api";
 
 type AccountUser = { name: string; email: string };
 
 function errorMessage(data: unknown, fallback: string) {
-  if (!data || typeof data !== "object") return fallback;
+  if (!data || typeof data !== "object") {
+    return fallback;
+  }
+
   const payload = data as { message?: unknown; errors?: Record<string, unknown> };
+
+  if (Array.isArray(payload.message) && typeof payload.message[0] === "string") {
+    return payload.message[0];
+  }
+
   const firstError = payload.errors && Object.values(payload.errors)[0];
-  if (Array.isArray(firstError) && typeof firstError[0] === "string") return firstError[0];
-  if (typeof payload.message === "string") return payload.message;
+
+  if (Array.isArray(firstError) && typeof firstError[0] === "string") {
+    return firstError[0];
+  }
+
+  if (typeof payload.message === "string") {
+    return payload.message;
+  }
+
   return fallback;
 }
 
 export default function AccountPage() {
   const router = useRouter();
+
   const [user, setUser] = useState<AccountUser | null>(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
+
   const [profileMessage, setProfileMessage] = useState("");
   const [profileError, setProfileError] = useState("");
   const [passwordMessage, setPasswordMessage] = useState("");
   const [passwordError, setPasswordError] = useState("");
+
   const [isLoading, setIsLoading] = useState(true);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [isSavingPassword, setIsSavingPassword] = useState(false);
@@ -41,7 +59,7 @@ export default function AccountPage() {
   useEffect(() => {
     async function loadAccount() {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user`, {
+        const response = await fetch(`${getApiUrl("user")}`, {
           headers: { Accept: "application/json" },
           credentials: "include",
         });
@@ -70,13 +88,11 @@ export default function AccountPage() {
     setIsSavingProfile(true);
 
     try {
-      const xsrfToken = await getXsrfToken();
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/profile`, {
+      const response = await fetch(`${getApiUrl("user/profile")}`, {
         method: "PATCH",
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
-          "X-XSRF-TOKEN": xsrfToken,
         },
         credentials: "include",
         body: JSON.stringify({ name, email }),
@@ -101,13 +117,11 @@ export default function AccountPage() {
     setIsSavingPassword(true);
 
     try {
-      const xsrfToken = await getXsrfToken();
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/password`, {
+      const response = await fetch(`${getApiUrl("user/password")}`, {
         method: "PUT",
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
-          "X-XSRF-TOKEN": xsrfToken,
         },
         credentials: "include",
         body: JSON.stringify({

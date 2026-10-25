@@ -1,1 +1,11 @@
 .idea/
+node_modules/
+**/node_modules/
+.next/
+**/.next/
+dist/
+backend/vendor/
+.env
+**/.env
+!**/.env.example
+**/.env.example
